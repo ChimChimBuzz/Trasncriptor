@@ -80,7 +80,7 @@ def main() -> None:
     # 1. estado
     status, data = _req("GET", "/api/status")
     assert status == 200 and data["whisper"] is True, data
-    print("✓ /api/status")
+    print("[OK] /api/status")
 
     # 2. transcribir un wav real (pitido) → comandos aplicados
     _beep_wav(beep_path)
@@ -91,12 +91,12 @@ def main() -> None:
     assert data["record"]["text"] == EXPECTED, data["record"]["text"]
     assert data["record"]["raw"] == FAKE_TEXT
     rid = data["record"]["id"]
-    print(f"✓ /api/transcribe → {data['record']['text']!r}")
+    print(f"[OK] /api/transcribe → {data['record']['text']!r}")
 
     # 3. modo literal (sin comandos)
     status, data = _req("POST", "/api/transcribe?commands=0", audio, "audio/wav")
     assert data["record"]["text"] == "Hola coma esto es una prueba punto y seguido seguimos punto final", data
-    print("✓ modo literal")
+    print("[OK] modo literal")
 
     # 4. historial + exportar + editar + borrar
     status, data = _req("GET", "/api/history")
@@ -108,12 +108,12 @@ def main() -> None:
     assert data["record"]["text"] == "Editado."
     status, data = _req("DELETE", f"/api/history?id={rid}")
     assert len(data["items"]) == 1
-    print("✓ historial / exportar / editar / borrar")
+    print("[OK] historial / exportar / editar / borrar")
 
     # 5. portada e interfaz
     status, html = _req("GET", "/")
     assert b"Trasncriptor" in html and b"micBtn" in html
-    print("✓ interfaz web")
+    print("[OK] interfaz web")
 
     server.shutdown()
     os.unlink(beep_path)

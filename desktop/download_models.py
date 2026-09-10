@@ -14,6 +14,11 @@ import os
 import sys
 import urllib.request
 
+try:  # la consola de Windows (cp1252) no acepta todos los caracteres
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 GGUF_DIR = os.path.join(BASE_DIR, "models")
 GGUF_URL = (
