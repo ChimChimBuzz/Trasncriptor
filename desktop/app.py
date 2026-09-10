@@ -74,7 +74,7 @@ def _load_history() -> list[dict]:
 
 
 def _save_history(items: list[dict]) -> None:
-    os.makedirs(DATA_DIR, exist_ok=True)
+    os.makedirs(os.path.dirname(HISTORY_PATH) or DATA_DIR, exist_ok=True)
     with open(HISTORY_PATH, "w", encoding="utf-8") as fh:
         json.dump(items[:500], fh, ensure_ascii=False, indent=2)
 

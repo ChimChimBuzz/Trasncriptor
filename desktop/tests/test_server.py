@@ -9,6 +9,7 @@ import math
 import os
 import struct
 import sys
+import tempfile
 import threading
 import urllib.request
 import wave
@@ -64,11 +65,14 @@ def _req(method: str, path: str, body: bytes | None = None, ctype: str | None = 
 
 
 def main() -> None:
+    tmpdir = tempfile.gettempdir()
+    hist_path = os.path.join(tmpdir, "trasnc_test_history.json")
+    beep_path = os.path.join(tmpdir, "trasnc_beep.wav")
     server_app.engine = _FakeEngine()
     server_app.WHISPER_OK = True
-    server_app.HISTORY_PATH = "/tmp/trasnc_test_history.json"
-    if os.path.exists(server_app.HISTORY_PATH):
-        os.unlink(server_app.HISTORY_PATH)
+    server_app.HISTORY_PATH = hist_path
+    if os.path.exists(hist_path):
+        os.unlink(hist_path)
 
     server = ThreadingHTTPServer(("127.0.0.1", PORT), server_app.Handler)
     threading.Thread(target=server.serve_forever, daemon=True).start()
@@ -79,8 +83,8 @@ def main() -> None:
     print("✓ /api/status")
 
     # 2. transcribir un wav real (pitido) → comandos aplicados
-    _beep_wav("/tmp/trasnc_beep.wav")
-    with open("/tmp/trasnc_beep.wav", "rb") as fh:
+    _beep_wav(beep_path)
+    with open(beep_path, "rb") as fh:
         audio = fh.read()
     status, data = _req("POST", "/api/transcribe?commands=1&source=mic", audio, "audio/wav")
     assert status == 200, data
@@ -112,7 +116,7 @@ def main() -> None:
     print("✓ interfaz web")
 
     server.shutdown()
-    os.unlink("/tmp/trasnc_beep.wav")
+    os.unlink(beep_path)
     os.unlink(server_app.HISTORY_PATH)
     print("\nTODO OK — servidor verificado de punta a punta.")
 
