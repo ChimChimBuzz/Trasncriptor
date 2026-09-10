@@ -106,16 +106,18 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: Trasncriptor-exe
+          path: ./dist-rel
 
       - uses: actions/download-artifact@v4
         with:
           name: Trasncriptor-apk
+          path: ./dist-rel
 
       - name: Publicar Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ls -la
+          echo "::notice title=archivos::$(ls -la ./dist-rel | tr '\n' ' ')"
           cat > notas.md <<'EOF'
           ## 🎙️ Trasncriptor ${{ github.ref_name }}
 
@@ -130,5 +132,10 @@ jobs:
 
           Di *coma, punto, punto y seguido, punto y aparte…* y la app puntúa por ti.
           EOF
-          gh release create "${{ github.ref_name }}" Trasncriptor.exe Trasncriptor.apk \
-            --title "Trasncriptor ${{ github.ref_name }}" --notes-file notas.md
+          if ! out=$(gh release create "${{ github.ref_name }}" ./dist-rel/Trasncriptor.exe ./dist-rel/Trasncriptor.apk \
+            --title "Trasncriptor ${{ github.ref_name }}" --notes-file notas.md 2>&1); then
+            echo "::error title=gh-release::$out" | tr '\n' ' ' | head -c 2000
+            echo
+            exit 1
+          fi
+          echo "$out"
