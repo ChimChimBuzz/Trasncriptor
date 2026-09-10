@@ -36,6 +36,28 @@ jobs:
           python tests/test_transcribe_glue.py
           python tests/test_server.py
 
+      - name: Diagnóstico si falla
+        if: failure()
+        working-directory: desktop
+        shell: python
+        run: |
+          import subprocess, sys
+          for t in ["tests/test_postprocess.py", "tests/test_transcribe_glue.py", "tests/test_server.py"]:
+              try:
+                  p = subprocess.run([sys.executable, t], capture_output=True, text=True, timeout=150)
+                  out = (p.stdout + "\n" + p.stderr)[-2500:]
+              except Exception as e:
+                  p = None
+                  out = f"EXCEPCION: {e}"
+              code = p.returncode if p else "?"
+              esc = out.replace("\r", "").replace("\n", "%0A")
+              print(f"::error title={t} exit={code}::{esc}")
+          try:
+              import faster_whisper
+              print(f"::notice title=fw-import::OK {faster_whisper.__version__}")
+          except Exception as e:
+              print(f"::error title=fw-import::FAIL %0A{repr(e)}"[:1500])
+
   exe-windows:
     needs: tests
     runs-on: windows-latest
