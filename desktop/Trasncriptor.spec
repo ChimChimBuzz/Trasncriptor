@@ -1,8 +1,10 @@
 # -*- mode: python ; coding: utf-8 -*-
-"""Empaqueta Trasncriptor PC como carpeta portable para Windows.
+"""Empaqueta Trasncriptor PC como UN SOLO .exe para Windows.
 
-Se construye solo en GitHub Actions (ver .github/workflows/desktop.yml):
-el modelo Whisper se descarga en el primer arranque, no va incluido.
+- Un único archivo Trasncriptor.exe (sin carpetas ni consola negra).
+- Al ejecutarlo abre el navegador solo; el modelo Whisper se descarga
+  en el primer uso (después funciona offline).
+- Se construye en GitHub Actions (workflows desktop.yml y release.yml).
 """
 from PyInstaller.utils.hooks import collect_all
 
@@ -30,21 +32,14 @@ pyz = PYZ(a.pure)
 exe = EXE(
     pyz,
     a.scripts,
-    [],
-    exclude_binaries=True,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
     name="Trasncriptor",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    console=True,
-)
-coll = COLLECT(
-    exe,
-    a.binaries,
-    a.zipfiles,
-    a.datas,
-    strip=False,
-    upx=True,
-    name="Trasncriptor",
+    console=False,  # sin ventana negra: es un programa "normal"
+    disable_windowed_traceback=False,
 )

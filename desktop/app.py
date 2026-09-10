@@ -17,8 +17,10 @@ import mimetypes
 import os
 import sys
 import tempfile
+import threading
 import traceback
 import uuid
+import webbrowser
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
@@ -28,6 +30,12 @@ try:  # la consola de Windows (cp1252) no acepta emojis: no romper por eso
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 except Exception:
     pass
+if sys.stdout is None or sys.stderr is None:  # .exe sin consola: anular salidas
+    _null = open(os.devnull, "w")
+    if sys.stdout is None:
+        sys.stdout = _null
+    if sys.stderr is None:
+        sys.stderr = _null
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE_DIR)
@@ -274,8 +282,11 @@ def main() -> None:
     parser.add_argument("--host", default="127.0.0.1")
     args = parser.parse_args()
     server = ThreadingHTTPServer((args.host, args.port), Handler)
-    print(f"\n🎙️  Trasncriptor listo → http://{args.host}:{args.port}")
+    url = f"http://127.0.0.1:{args.port}"
+    print(f"\n🎙️  Trasncriptor listo → {url}")
     print("   Pulsa Ctrl+C para detener.\n", flush=True)
+    if getattr(sys, "frozen", False):  # .exe: abrir el navegador solo
+        threading.Timer(1.0, lambda: webbrowser.open(url)).start()
     try:
         server.serve_forever()
     except KeyboardInterrupt:

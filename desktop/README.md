@@ -14,8 +14,9 @@ micrófono y los botones: la transcripción la hace **Whisper dentro de tu PC**.
    ```
 3. Abre **http://localhost:8765**, pulsa el micrófono y dicta.
 
-> ¿No quieres instalar Python? Descarga `Trasncriptor-windows` ya compilado
-> desde la pestaña *Actions* de GitHub (ver README principal).
+> ¿No quieres instalar Python? Descarga `Trasncriptor.exe` (un solo archivo,
+> sin instalación) desde la página de [Releases](../../releases): ejecútalo
+> y se abrirá solo en tu navegador.
 
 ## Modelos Whisper
 

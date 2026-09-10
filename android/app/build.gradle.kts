@@ -18,10 +18,31 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("trasncriptor")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+    }
+
+    signingConfigs {
+        // Clave de EJEMPLO incluida en el repo (uso personal): alias y
+        // contraseñas = "trasncriptor". Si publicas la app, genera tu
+        // propia clave y sustitúyela (ver android/README.md).
+        create("trasncriptor") {
+            storeFile = file("../trasncriptor.keystore")
+            storePassword = "trasncriptor"
+            keyAlias = "trasncriptor"
+            keyPassword = "trasncriptor"
+            storeType = "PKCS12"
+        }
+        getByName("debug") {
+            storeFile = file("../trasncriptor.keystore")
+            storePassword = "trasncriptor"
+            keyAlias = "trasncriptor"
+            keyPassword = "trasncriptor"
+            storeType = "PKCS12"
         }
     }
 

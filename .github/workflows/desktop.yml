@@ -79,5 +79,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Trasncriptor-windows
-          path: desktop/dist/Trasncriptor
+          path: desktop/dist/Trasncriptor.exe
           retention-days: 30

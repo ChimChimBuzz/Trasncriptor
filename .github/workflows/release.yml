@@ -1,0 +1,109 @@
+name: Release (exe + apk)
+
+# Al publicar una etiqueta v* (p. ej. v1.0.0) se compilan el .exe único
+# de Windows y el APK firmado, y se publican en la página de Releases.
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  exe:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Construir Trasncriptor.exe
+        working-directory: desktop
+        run: |
+          pip install -r requirements.txt pyinstaller
+          pyinstaller Trasncriptor.spec
+
+      - name: Subir exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: Trasncriptor-exe
+          path: desktop/dist/Trasncriptor.exe
+          retention-days: 7
+
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Instalar Gradle 8.9
+        run: |
+          curl -sL https://services.gradle.org/distributions/gradle-8.9-bin.zip -o /tmp/gradle.zip
+          unzip -q /tmp/gradle.zip -d $HOME/gradle
+          echo "$HOME/gradle/gradle-8.9/bin" >> $GITHUB_PATH
+
+      - name: Tests + APK firmado
+        working-directory: android
+        run: gradle --no-daemon :app:testDebugUnitTest :app:assembleRelease
+
+      - name: Verificar firma
+        run: |
+          ls android/app/build/outputs/apk/release/
+          "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --print-certs android/app/build/outputs/apk/release/app-release.apk | head -5
+
+      - name: Renombrar APK
+        run: cp android/app/build/outputs/apk/release/app-release.apk Trasncriptor.apk
+
+      - name: Subir apk
+        uses: actions/upload-artifact@v4
+        with:
+          name: Trasncriptor-apk
+          path: Trasncriptor.apk
+          retention-days: 7
+
+  publicar:
+    needs: [exe, apk]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: Trasncriptor-exe
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: Trasncriptor-apk
+
+      - name: Publicar Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ls -la
+          cat > notas.md <<'EOF'
+          ## 🎙️ Trasncriptor ${{ github.ref_name }}
+
+          **Windows:** descarga `Trasncriptor.exe`, ejecútalo y se abrirá solo en tu navegador.
+          El primer uso descarga el modelo de voz (~150 MB); después funciona sin internet.
+
+          > Si Windows muestra "origen desconocido": *Más información → Ejecutar de todas formas*.
+          > Es normal: el programa no tiene certificado comercial de pago.
+
+          **Android:** descarga `Trasncriptor.apk`, ábrelo en el móvil y permite instalar.
+          Para dictar sin internet: *Ajustes → Idioma → Voz* → descarga el español.
+
+          Di *coma, punto, punto y seguido, punto y aparte…* y la app puntúa por ti.
+          EOF
+          gh release create "${{ github.ref_name }}" Trasncriptor.exe Trasncriptor.apk \
+            --title "Trasncriptor ${{ github.ref_name }}" --notes-file notas.md

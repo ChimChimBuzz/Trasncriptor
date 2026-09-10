@@ -6,8 +6,7 @@ sin cuentas y sin nube.
 
 ## Instalar (sin programar)
 
-1. En GitHub: pestaña *Actions* → *Android (tests + APK)* →
-   última ejecución en verde → *Artifacts* → `Trasncriptor-debug-apk`.
+1. En GitHub: página de [Releases](../../releases) → descarga `Trasncriptor.apk`.
 2. Pasa el APK al móvil, ábrelo y permite "instalar de origen desconocido".
 
 ## Dictado 100 % offline (recomendado)
@@ -41,6 +40,23 @@ Por terminal (con JDK 17 + Android SDK):
 gradle :app:testDebugUnitTest :app:assembleDebug
 # APK en app/build/outputs/apk/debug/app-debug.apk
 ```
+
+## Clave de firma
+
+El APK de Releases va firmado con `android/trasncriptor.keystore`, una clave
+de **ejemplo incluida en el repo** (alias y contraseñas: `trasncriptor`).
+Vale para uso personal y permite actualizar sin desinstalar.
+
+Si vas a publicar la app en serio, genera tu propia clave privada y no la
+subas al repositorio:
+
+```bash
+keytool -genkeypair -keystore mi-clave.keystore -alias mi-alias \
+  -keyalg RSA -keysize 2048 -validity 9125
+```
+
+y apunta `storeFile`/`storePassword`/`keyAlias`/`keyPassword` en
+`app/build.gradle.kts` a tu clave (mejor con secretos de GitHub Actions).
 
 ## Notas técnicas
 

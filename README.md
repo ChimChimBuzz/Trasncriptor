@@ -15,15 +15,15 @@ y la app escribe `,` `.` `.` `¶`. Tabla completa en [COMANDOS.md](COMANDOS.md).
 | Historial | Guardado local, copiar / descargar / borrar | Guardado local, copiar / compartir / borrar |
 | Instrucciones | [desktop/README.md](desktop/README.md) | [android/README.md](android/README.md) |
 
-## Conseguirlas sin instalar nada técnico
+## Descargar (sin instalar nada técnico)
 
-Cada vez que se sube código, GitHub **compila automáticamente**:
+Ve a la página de **[Releases](../../releases)** y descarga la última versión:
 
-- El **APK de Android**: pestaña *Actions* → *Android (tests + APK)* →
-  última ejecución en verde → *Artifacts* → `Trasncriptor-debug-apk`.
-  Pásalo al móvil e instálalo (permite "instalar de origen desconocido").
-- El **programa de Windows**: *Actions* → *PC (tests + programa Windows)* →
-  *Artifacts* → `Trasncriptor-windows`. Descomprime y ejecuta `Trasncriptor.exe`.
+- **`Trasncriptor.exe`** (Windows): ejecútalo y se abre solo en el navegador.
+  Si Windows avisa de "origen desconocido": *Más información → Ejecutar*.
+  El primer uso descarga el modelo de voz (~150 MB); después, offline.
+- **`Trasncriptor.apk`** (Android): ábrelo en el móvil y permite instalar.
+  Para dictar sin internet: *Ajustes → Idioma → Voz* → descarga el español.
 
 En el PC también puedes usarla directamente con Python (más ligero):
 ver [desktop/README.md](desktop/README.md).
