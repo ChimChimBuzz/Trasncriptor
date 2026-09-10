@@ -115,8 +115,9 @@ object CommandProcessor {
 
     private fun capitalize(text: String): String {
         var t = text
-        // Primera letra (tolerando aperturas: ¿ " ( «).
-        t = Regex("^[\\s$OPENERS\\-]*([$LOWER])").replaceFirst(t) { m ->
+        // Primera letra (tolerando aperturas: ¿ " ( «). El ^ ancla al inicio:
+        // solo hay una coincidencia posible.
+        t = Regex("^[\\s$OPENERS\\-]*([$LOWER])").replace(t) { m ->
             m.value.dropLast(1) + m.groupValues[1].uppercase()
         }
         // Después de . ? ! (los suspensivos … continúan la frase).
