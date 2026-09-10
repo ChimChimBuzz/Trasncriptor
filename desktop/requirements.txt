@@ -1,0 +1,8 @@
+# Motor local: Whisper (faster-whisper) — gratis, offline, sin claves.
+# No usa torch: funciona solo con CPU gracias a ctranslate2.
+faster-whisper>=1.0.0
+
+# Opcional: pulido del texto con un modelo GGUF en local.
+# Requiere compilador C++ (cmake). Si no lo instalas, la app funciona
+# igual pero sin el botón "pulir con IA".
+# llama-cpp-python>=0.3.0

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trasncriptor — dictado offline</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">🎙️ <strong>Trasncriptor</strong> <span class="tag">100 % local</span></div>
+  <div id="status" class="status">conectando…</div>
+</header>
+
+<main class="layout">
+  <section class="recorder card">
+    <div class="mic-wrap">
+      <button id="micBtn" class="mic" aria-label="Empezar a dictar">🎙️</button>
+      <div id="timer" class="timer">00:00</div>
+      <div class="meter"><div id="meterFill" class="meter-fill"></div></div>
+      <p id="hint" class="hint">Pulsa el micrófono y dicta. Di <em>coma</em>, <em>punto</em>, <em>punto y aparte</em>…</p>
+    </div>
+
+    <div class="options">
+      <label class="check"><input type="checkbox" id="optCommands" checked> Interpretar comandos de puntuación</label>
+      <label class="check"><input type="checkbox" id="optPolish"> Pulir con IA local <span id="polishNote" class="note"></span></label>
+      <label class="model">Modelo Whisper:
+        <select id="optModel">
+          <option value="">(el del servidor)</option>
+          <option value="tiny">tiny — rápido</option>
+          <option value="base">base — equilibrado</option>
+          <option value="small">small — mejor calidad</option>
+        </select>
+      </label>
+      <label class="upload">📁 Transcribir archivo
+        <input type="file" id="fileInput" accept="audio/*,video/*" hidden>
+      </label>
+    </div>
+
+    <div id="busy" class="busy" hidden><span class="spinner"></span> Transcribiendo en tu equipo…</div>
+
+    <div class="result">
+      <h2>Transcripción</h2>
+      <textarea id="resultText" rows="8" placeholder="Aquí aparecerá lo que dictes…"></textarea>
+      <div class="row">
+        <button id="btnCopy" class="btn">📋 Copiar</button>
+        <button id="btnDownload" class="btn">⬇️ Descargar</button>
+        <button id="btnSaveEdit" class="btn">💾 Guardar cambios</button>
+        <button id="btnNew" class="btn ghost">✨ Nuevo</button>
+      </div>
+      <p id="msg" class="msg"></p>
+    </div>
+  </section>
+
+  <aside class="history card">
+    <h2>Historial <span id="histCount" class="count"></span></h2>
+    <div id="histList" class="hist-list"><p class="empty">Aún no hay dictados.</p></div>
+  </aside>
+</main>
+
+<footer class="foot">Tus audios no salen de este equipo · <span id="footModel"></span></footer>
+<script src="/app.js"></script>
+</body>
+</html>

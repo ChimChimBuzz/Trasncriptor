@@ -1,0 +1,61 @@
+name: PC (tests + programa Windows)
+
+on:
+  push:
+    paths:
+      - "desktop/**"
+      - "COMANDOS.md"
+      - ".github/workflows/desktop.yml"
+  pull_request:
+    paths:
+      - "desktop/**"
+  workflow_dispatch:
+
+jobs:
+  tests:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar motor
+        working-directory: desktop
+        run: pip install -r requirements.txt
+
+      - name: Tests (comandos + pegamento + servidor)
+        working-directory: desktop
+        run: |
+          python tests/test_postprocess.py
+          python tests/test_transcribe_glue.py
+          python tests/test_server.py
+
+  exe-windows:
+    needs: tests
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Construir Trasncriptor.exe
+        working-directory: desktop
+        run: |
+          pip install -r requirements.txt pyinstaller
+          pyinstaller Trasncriptor.spec
+
+      - name: Subir programa
+        uses: actions/upload-artifact@v4
+        with:
+          name: Trasncriptor-windows
+          path: desktop/dist/Trasncriptor
+          retention-days: 30

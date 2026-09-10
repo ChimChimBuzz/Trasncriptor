@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+# Datos del usuario (historial local y modelos descargados: NO se suben)
+desktop/data/
+desktop/models/
+*.gguf
+# PyInstaller
+dist/
+build/
+*.spec.js
+# Android
+local.properties
+.gradle/
+build/
+*.apk
+*.aab
+# Sistema
+.DS_Store
