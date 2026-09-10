@@ -42,9 +42,12 @@ class DictationManager(
         wantListening = false
         try {
             recognizer?.stopListening()
+            // No avisamos aquí: el onResults/onError resultante llama a
+            // onListening(false) DESPUÉS de entregar el último trozo.
+            if (recognizer == null) listener.onListening(false)
         } catch (_: Exception) {
+            listener.onListening(false)
         }
-        listener.onListening(false)
     }
 
     fun destroy() {

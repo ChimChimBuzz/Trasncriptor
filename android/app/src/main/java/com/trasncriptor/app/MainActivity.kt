@@ -151,6 +151,18 @@ fun DictateScreen(
     val onTextRef = rememberUpdatedState(onTextChange)
     val onEditIdRef = rememberUpdatedState(onEditingIdChange)
 
+    fun consolidate() {
+        val raw = rawChunks.joinToString(" ").trim()
+        rawChunks.clear()
+        live.value = ""
+        if (raw.isNotEmpty()) {
+            val done = CommandProcessor.process(raw, applyCommandsRef.value)
+            onTextRef.value(done)
+            onEditIdRef.value(null)
+            scope.launch { store.add(done) }
+        }
+    }
+
     val manager = remember {
         DictationManager(
             context.applicationContext,
@@ -166,20 +178,17 @@ fun DictateScreen(
 
                 override fun onError(message: String) {
                     error.value = message
-                    recording.value = false
+                    if (recording.value) {
+                        recording.value = false
+                        consolidate()
+                    }
                 }
 
                 override fun onListening(listening: Boolean) {
                     if (!listening && recording.value) {
-                        // Se detuvo (el usuario pulsó detener o hubo un error): consolidar.
+                        // Se detuvo tras entregar el último trozo: consolidar.
                         recording.value = false
-                        val raw = rawChunks.joinToString(" ").trim()
-                        if (raw.isNotEmpty()) {
-                            val done = CommandProcessor.process(raw, applyCommandsRef.value)
-                            onTextRef.value(done)
-                            onEditIdRef.value(null)
-                            scope.launch { store.add(done) }
-                        }
+                        consolidate()
                     }
                 }
             }
@@ -226,6 +235,14 @@ fun DictateScreen(
             onClick = {
                 if (recording.value) {
                     manager.stop() // la consolidación llega vía onListening(false)
+                    scope.launch {
+                        // Red de seguridad: si el reconocedor no responde, consolidar igual.
+                        delay(3000)
+                        if (recording.value) {
+                            recording.value = false
+                            consolidate()
+                        }
+                    }
                 } else {
                     val ok = ContextCompat.checkSelfPermission(
                         context, Manifest.permission.RECORD_AUDIO
@@ -325,7 +342,7 @@ fun DictateScreen(
                 }
             ) { Text("Guardar") }
             OutlinedButton(
-                onClick {
+                onClick = {
                     onEditingIdChange(null)
                     onTextChange("")
                 }
